@@ -33,8 +33,10 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class ChooseFr extends Fragment {
-    public static final String TAG = "ChooseFragment";
+import static java.util.Objects.requireNonNull;
+
+public class ChooseAreaFragment extends Fragment {
+    public static final String TAG = "ChooseAreaFragment";
     public static final int LEVEL_PROVINCE = 0;
     public static final int LEVEL_CITY = 1;
     public static final int LEVEL_COUNTY = 2;
@@ -54,12 +56,12 @@ public class ChooseFr extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.choose_area, container, false);
         titleText = (TextView) view.findViewById(R.id.title_text);
         backButton = (Button) view.findViewById(R.id.back_button);
         listView = (ListView) view.findViewById(R.id.list_view);
-        adapter = new ArrayAdapter<>(Objects.requireNonNull(getContext()), android.R.layout.simple_list_item_1, dataList);
+        adapter = new ArrayAdapter<>(requireNonNull(getContext()), android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter);
         return view;
 
@@ -100,6 +102,7 @@ public class ChooseFr extends Fragment {
             dataList.clear();
             for(Province province : provinceList){
                 dataList.add(province.getProvinceName());
+                Log.d(TAG,"ProvinceName--->"+province.getProvinceName());
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
@@ -118,6 +121,7 @@ public class ChooseFr extends Fragment {
             dataList.clear();
             for (City city : cityList){
                 dataList.add(city.getCityName());
+                Log.d(TAG,"CityName--->"+city.getCityName());
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
@@ -138,6 +142,7 @@ public class ChooseFr extends Fragment {
             dataList.clear();
             for (County county: countyList){
                 dataList.add(county.getCountyName());
+                Log.d(TAG,"CountyName--->"+county.getCountyName());
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
@@ -157,7 +162,8 @@ public class ChooseFr extends Fragment {
         HttpUtil.sendOkHttpRequest(address, new Callback() {
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
                 String responseText = response.body().string();
                 boolean result = false;
                 if ("province".equals(type)) {
@@ -168,7 +174,7 @@ public class ChooseFr extends Fragment {
                     result = Utility.handleCountyResponse(responseText, selectedCity.getId());
                 }
                 if (result) {
-                    Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                    requireNonNull(getActivity()).runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             closeProgressDialog();
@@ -186,7 +192,7 @@ public class ChooseFr extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+                requireNonNull(getActivity()).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         closeProgressDialog();
